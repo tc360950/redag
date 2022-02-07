@@ -1,24 +1,28 @@
+from redag.dimension import dimension
+from redag.entity import generator
+from redag.fact import fact
+from redag.links import EntityReference
+from redag.redag import Redag
+from redag.relation_graph import RelationGraph
+
+redag = Redag(RelationGraph())
 
 
-from entity import entity, generator
-
-
-@entity(items=2000)
+@dimension(redag=redag, max_quantity=100)
 class Customer:
     cde2: int
     value: int
     abc: int
 
     @generator(name="value")
-    def generate_value(cls, values):
+    def generate_value(cls, values, **kwargs):
         pass
 
-#@fact
-#class Invoice:
- #   item_id: EntityRef(Item)
-  #  value: int
-   # sales_order: OneToMany(SalesOrder)
-   # customer_id: EntityRef(Customer)
+
+@fact(redag=redag)
+class Invoice:
+    item_id: EntityReference(Customer)
+    value: int
 
 
 # Press the green button in the gutter to run the script.

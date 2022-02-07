@@ -4,21 +4,32 @@ from functools import singledispatch
 from typing import List, Dict, Union, Callable
 
 from generator import Generator
+from redag.links import EntityReference, OneToManyReference
+from utils import ObjectID
 
 __GENERATOR_CONFIG_KEY__ = "__generator_config__"
 __ENTITY_ATTRIBUTES_KEY__ = "__entity_attributes__"
 __GENERATOR_KEY__ = "__generator_function__"
+__REDAG_ID_ATTRIBUTE__ = "__redag_id__"
 
+# TODO
 __TYPE_TO_DEFAULT_GENERATOR__ = {
     int: lambda *args, **kwargs: random.randint(0, 10),
     float: lambda *args, **kwargs: random.random(),
-    str: lambda *args, **kwargs: ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+    str: lambda *args, **kwargs: ''.join(random.choices(string.ascii_uppercase + string.digits, k=10)),
+    ObjectID: lambda *args, **kwargs: ObjectID.generate(),
+    EntityReference: lambda *args, **kwargs: 0,
+    OneToManyReference: lambda *args, **kwargs: 0
 }
 
 
-def entity(items: int):
+def entity_decorator(allowed_attr_types: List[type]):
     def f(cls):
         attr_to_type = __extract_attributes(cls)
+        if any([t for t in attr_to_type.values() if t not in allowed_attr_types]):
+            raise ValueError(f"Class {cls.__name__} contains forbidden type!")
+
+        attr_to_type[__REDAG_ID_ATTRIBUTE__] = ObjectID
         setattr(cls, __ENTITY_ATTRIBUTES_KEY__, attr_to_type)
         __create__init(cls)
         gen = __create_generator_function(__create_attr_generators(cls), attr_order=list(attr_to_type.keys()))
@@ -91,10 +102,11 @@ def __create_attr_generators(cls) -> Union[Dict[str, Generator], Generator]:
 
 @singledispatch
 def __create_generator_function(generators: dict[str, Generator], attr_order: List[str]):
-    def __generator(cls):
+    def __generator(cls, **kwargs):
+        parents = kwargs.get("parents", None)
         values = {}
         for a in attr_order:
-            values[a] = generators[a].func(cls, values)
+            values[a] = generators[a].func(cls, values, parents)
         return cls(**values)
 
     return classmethod(__generator)
@@ -102,8 +114,9 @@ def __create_generator_function(generators: dict[str, Generator], attr_order: Li
 
 @__create_generator_function.register
 def _(generator: Generator, attr_order: List[str]):
-    def __generator(cls):
-        return cls(**generator.func(cls))
+    def __generator(cls, **kwargs):
+        parents = kwargs.get("parents", None)
+        return cls(**generator.func(cls, parents))
 
     return classmethod(__generator)
 
