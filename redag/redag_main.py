@@ -2,6 +2,9 @@ from dataclasses import dataclass
 
 from redag.relation_graph import RelationGraph
 
+#  is_directed_acyclic_graph
+
+# topological_sort for gen
 
 @dataclass
 class Redag:
@@ -11,8 +14,8 @@ class Redag:
 
     def register_dimension(self, cls):
         self.__dimensions.append(cls)
-        pass
+        self.relation_graph.add_node(cls)
 
     def register_fact(self, cls):
         self.__facts.append(cls)
-        pass
+        self.relation_graph.add_node(cls)

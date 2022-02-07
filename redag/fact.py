@@ -5,7 +5,7 @@ from redag.links import EntityReference, OneToManyReference
 
 __fact_allowed_types__ = [str, int, float, datetime, EntityReference, OneToManyReference]
 
-from redag.redag import Redag
+from redag.redag_main import Redag
 
 
 def fact(redag: Redag):

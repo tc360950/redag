@@ -5,7 +5,7 @@ from typing import List, Dict, Union, Callable
 
 from generator import Generator
 from redag.links import EntityReference, OneToManyReference
-from utils import ObjectID
+from utils import ObjectID, get_type
 
 __GENERATOR_CONFIG_KEY__ = "__generator_config__"
 __ENTITY_ATTRIBUTES_KEY__ = "__entity_attributes__"
@@ -26,6 +26,7 @@ __TYPE_TO_DEFAULT_GENERATOR__ = {
 def entity_decorator(allowed_attr_types: List[type]):
     def f(cls):
         attr_to_type = __extract_attributes(cls)
+
         if any([t for t in attr_to_type.values() if t not in allowed_attr_types]):
             raise ValueError(f"Class {cls.__name__} contains forbidden type!")
 
@@ -69,7 +70,7 @@ def __extract_attributes(cls) -> Dict[str, type]:
     """
         Scan __annotation__ of class @cls to retrieve attributes together with their types.
     """
-    return dict([(ann, value) for ann, value in cls.__dict__["__annotations__"].items() if not ann.startswith('_')])
+    return dict([(ann, get_type(value)) for ann, value in cls.__dict__["__annotations__"].items() if not ann.startswith('_')])
 
 
 def __extract_custom_generators(cls) -> List[Generator]:
@@ -101,12 +102,12 @@ def __create_attr_generators(cls) -> Union[Dict[str, Generator], Generator]:
 
 
 @singledispatch
-def __create_generator_function(generators: dict[str, Generator], attr_order: List[str]):
+def __create_generator_function(generators, attr_order: List[str]):
     def __generator(cls, **kwargs):
         parents = kwargs.get("parents", None)
         values = {}
         for a in attr_order:
-            values[a] = generators[a].func(cls, values, parents)
+            values[a] = generators[a].func(cls, values, parents=parents)
         return cls(**values)
 
     return classmethod(__generator)
