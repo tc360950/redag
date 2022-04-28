@@ -2,7 +2,7 @@ from typing import List
 
 from src.entity.entity import entity_decorator, EntityTypeEnum, Entity, get_entity_references
 from src.entity.redag_annotations_processor import RedagAnnotationsProcessor
-from src.redag import Redag
+from src.redag import REDAG
 
 
 def fact():
@@ -12,7 +12,7 @@ def fact():
         if len(__get_fact_references(cls)) > 1:
             raise ValueError("Entities may have at most one reference to facts!")
 
-        Redag().register_entity(cls)
+        REDAG().register_entity(cls)
         return cls
 
     return f

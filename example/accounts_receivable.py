@@ -6,8 +6,8 @@ from src.entity.dimension import dimension, Dimension
 from src.entity.entity import multiplicity_generator_decorator, generator_decorator
 from src.entity.fact import fact
 from src.entity.redag_types import Reference
-from src.formatter import RedagSampleFormatter
-from src.redag import Redag
+from src.formatter import SampleFormatter
+from src.redag import REDAG
 
 
 @dimension(max_quantity=1)
@@ -54,15 +54,14 @@ class Invoice:
 
         state["amount_left"] = state["amount_left"] - invoice_amount
         state["invoice_number"] = invoice_number
-
+        invoice_date = parents[SalesOrder].order_date
         return {
             "total_amount": invoice_amount,
-            "invoice_date": datetime.date.today(),
-            "invoice_due_date": datetime.date.today()
+            "invoice_date": invoice_date,
+            "invoice_due_date": invoice_date + datetime.timedelta(days=random.randint(1, 10))
         }
 
 
 if __name__ == "__main__":
-    sample = next(Redag().generate())
-    print(RedagSampleFormatter.format(sample))
-    print(sample)
+    sample = next(REDAG().generate())
+    print(SampleFormatter.format(sample))

@@ -1,7 +1,7 @@
 import random
 
 from src.entity.entity import entity_decorator, EntityTypeEnum, get_entity_references
-from src.redag import Redag
+from src.redag import REDAG
 
 
 def dimension(max_quantity=1):
@@ -14,7 +14,7 @@ def dimension(max_quantity=1):
             raise ValueError("Dimension entity can not have any references!")
 
         cls.max_dim_quantity = max_quantity
-        Redag().register_entity(cls)
+        REDAG().register_entity(cls)
         return cls
 
     return f

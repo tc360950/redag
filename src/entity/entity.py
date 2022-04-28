@@ -1,4 +1,4 @@
-from typing import Dict, Callable
+from typing import Dict, Callable, Any
 
 from src.entity.entity_type import EntityTypeEnum
 from src.entity.redag_annotations_processor import RedagAnnotationsProcessor as RAP
@@ -8,6 +8,7 @@ from src.entity.redag_types import ObjectID, EntityGenerator, \
 __REDAG_ID_ATTRIBUTE__ = "__redag_id__"
 
 Entity = type
+EntityValue = Any
 
 
 def entity_decorator(entity_type: EntityTypeEnum):
@@ -19,7 +20,7 @@ def entity_decorator(entity_type: EntityTypeEnum):
         RAP.set_entity_generator(cls, create_generator_function(cls))
 
         if not all([RAP.is_redag_entity(r.referenced_type) for r in get_entity_references(cls).values()]):
-            raise ValueError("You can nly reference other entities!")
+            raise ValueError("You can only reference other entities!")
         return cls
 
     return f
@@ -90,8 +91,10 @@ def create_generator_function(cls):
     def __generator(cls, parents: Dict, state: Dict, **kwargs):
         attr_dict = generator.func(cls, parents=parents, state=state)
         for ref_name, ref_type in get_entity_references(cls).items():
-            referenced_id = RAP.get_entity_attributes(parents[ref_type.referenced_type])[__REDAG_ID_ATTRIBUTE__]
+            referenced_id = get_object_id(parents[ref_type.referenced_type])
+            print(referenced_id.id)
             attr_dict[ref_name] = ref_type(referenced_id=referenced_id)
+            print(attr_dict[ref_name].referenced_id.id)
         return cls(**attr_dict)
 
     return classmethod(__generator)
@@ -99,7 +102,7 @@ def create_generator_function(cls):
 
 def create_default_generator(cls) -> EntityGenerator:
     attributes = RAP.get_entity_attributes(cls)
-    # Filter put references and id
+    # Filter out references and id - those attributes will be generated internally
     attributes = dict([(name, type_) for name, type_ in attributes.items() if
                        type(type_) != ReferenceMetaClass and name != __REDAG_ID_ATTRIBUTE__])
 
@@ -114,3 +117,9 @@ def create_default_generator(cls) -> EntityGenerator:
 
 def get_entity_references(cls) -> Dict[str, type]:
     return {n: t for n, t in RAP.get_entity_attributes(cls).items() if type(t) == ReferenceMetaClass}
+
+
+def get_object_id(object) -> ObjectID:
+    if not RAP.is_redag_entity(type(object)):
+        raise ValueError(f"Provided object {object} is not a Redag Entity!")
+    return getattr(object, __REDAG_ID_ATTRIBUTE__)

@@ -3,7 +3,7 @@ from src.entity.entity import generator_decorator, multiplicity_generator_decora
 from src.entity.redag_annotations_processor import RedagAnnotationsProcessor
 from src.entity.redag_types import Reference
 from src.entity.fact import fact
-from src.redag import Redag
+from src.redag import REDAG
 
 
 def test_simple_entity_creation():
@@ -55,6 +55,6 @@ def test_simple_entity_creation():
     import networkx as nx
     G = nx.DiGraph([(1, 2), (2, 3), (2, 4), (4, 5), (3, 5)])
     print(nx.is_directed_acyclic_graph(G))
-    next(Redag().generate())
+    next(REDAG().generate())
     #for en in Redag().generate():
      #   print(en)
