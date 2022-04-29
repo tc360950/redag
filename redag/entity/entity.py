@@ -1,18 +1,14 @@
-from typing import Dict, Callable, Any
+from typing import Dict, Callable
 
-from src.entity.entity_type import EntityTypeEnum
-from src.entity.redag_annotations_processor import RedagAnnotationsProcessor as RAP
-from src.entity.redag_types import ObjectID, EntityGenerator, \
-    ReferenceMetaClass, is_allowed_entity_attribute_types, TYPE_TO_DEFAULT_GENERATOR
+from redag.entity.redag_annotations_processor import RedagAnnotationsProcessor as RAP
+from redag.entity.redag_types import ObjectID, EntityGenerator, \
+    ReferenceMetaClass, is_allowed_entity_attribute_types, TYPE_TO_DEFAULT_GENERATOR, Entity, EntityTypeEnum
 
 __REDAG_ID_ATTRIBUTE__ = "__redag_id__"
 
-Entity = type
-EntityValue = Any
-
 
 def entity_decorator(entity_type: EntityTypeEnum):
-    def f(cls):
+    def f(cls: Entity):
         RAP.init_entity_redag_config(cls, entity_type)
         entity_attributes: Dict[str, type] = extract_entity_attributes(cls)
         RAP.set_entity_attributes(cls, entity_attributes)
@@ -29,8 +25,6 @@ def entity_decorator(entity_type: EntityTypeEnum):
 def generator_decorator():
     """
         Decorator used to declare entity methods as generators.
-        A generator is a class method with one argument - *values* Dict which maps
-        already generated attributes to the values.
     """
 
     def dec(f: Callable) -> classmethod:
@@ -84,17 +78,20 @@ def create_entity_init(cls) -> Callable:
 
 
 def create_generator_function(cls):
+    """
+    Create a proper generating function from method decorated with 'generator_decorator'
+    (if none method has been indicated as generator, use default)
+    """
     generator = RAP.get_entity_custom_generator_def(cls)
     if generator is None:
         generator = create_default_generator(cls)
 
     def __generator(cls, parents: Dict, state: Dict, **kwargs):
+        # this call should result in generation of all attributes with exception of references
         attr_dict = generator.func(cls, parents=parents, state=state)
         for ref_name, ref_type in get_entity_references(cls).items():
             referenced_id = get_object_id(parents[ref_type.referenced_type])
-            print(referenced_id.id)
             attr_dict[ref_name] = ref_type(referenced_id=referenced_id)
-            print(attr_dict[ref_name].referenced_id.id)
         return cls(**attr_dict)
 
     return classmethod(__generator)

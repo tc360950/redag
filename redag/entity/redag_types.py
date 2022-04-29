@@ -5,7 +5,16 @@ import time
 import types
 import uuid
 from dataclasses import dataclass
-from typing import Callable
+from enum import Enum, auto
+from typing import Callable, Any
+
+Entity = type
+EntityValue = Any
+
+
+class EntityTypeEnum(Enum):
+    FACT = auto()
+    DIMENSION = auto()
 
 
 @dataclass
@@ -29,6 +38,14 @@ class EntityGenerator:
 
 
 class ReferenceMetaClass(type):
+    """
+        Together with Reference class enables definition of
+        generic references:
+        Reference[Type]
+
+        The Type parameter is persisted in @referenced_type key.
+    """
+
     def __getitem__(cls, key):
         new_cls = types.new_class(f"{cls.__name__}_{key.__name__}", (cls,), {},
                                   lambda ns: ns.__setitem__("referenced_type", key))
@@ -51,5 +68,6 @@ TYPE_TO_DEFAULT_GENERATOR = {
     float: lambda *args, **kwargs: random.random(),
     bool: lambda *args, **kwargs: bool(random.getrandbits(1)),
     str: lambda *args, **kwargs: ''.join(random.choices(string.ascii_uppercase + string.digits, k=10)),
-    datetime.date: lambda *args, **kwargs: datetime.datetime.fromtimestamp(int(time.time()) + 86400 * random.randint(0, 60))
+    datetime.date: lambda *args, **kwargs: datetime.datetime.fromtimestamp(
+        int(time.time()) + 86400 * random.randint(0, 60))
 }

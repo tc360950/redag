@@ -1,7 +1,7 @@
 from typing import Generator
 import networkx
 
-from src.entity.entity import get_entity_references, Entity
+from redag.entity.entity import get_entity_references, Entity
 
 
 class RelationGraph(networkx.DiGraph):

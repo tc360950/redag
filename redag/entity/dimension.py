@@ -1,7 +1,8 @@
 import random
 
-from src.entity.entity import entity_decorator, EntityTypeEnum, get_entity_references
-from src.redag import REDAG
+from redag.entity.entity import entity_decorator, get_entity_references
+from redag.entity.redag_types import EntityTypeEnum
+from redag.redag import REDAG
 
 
 def dimension(max_quantity=1):
@@ -21,6 +22,9 @@ def dimension(max_quantity=1):
 
 
 class DimensionMetaClass(type):
+    """
+    Restricts number of instances of a class to cls.max_dim_quantity.
+    """
     instances = {}
 
     def __call__(cls, *args, **kwargs):

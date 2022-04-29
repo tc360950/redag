@@ -2,12 +2,7 @@ import datetime
 import random
 from typing import Dict
 
-from src.entity.dimension import dimension, Dimension
-from src.entity.entity import multiplicity_generator_decorator, generator_decorator
-from src.entity.fact import fact
-from src.entity.redag_types import Reference
-from src.formatter import SampleFormatter
-from src.redag import REDAG
+from redag import REDAG, SampleFormatter, multiplicity_generator_decorator, generator_decorator, Reference, fact, dimension, Dimension
 
 
 @dimension(max_quantity=1)

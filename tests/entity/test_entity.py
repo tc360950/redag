@@ -1,9 +1,9 @@
-from src.entity.dimension import dimension, Dimension
-from src.entity.entity import generator_decorator, multiplicity_generator_decorator
-from src.entity.redag_annotations_processor import RedagAnnotationsProcessor
-from src.entity.redag_types import Reference
-from src.entity.fact import fact
-from src.redag import REDAG
+from redag.entity.dimension import dimension, Dimension
+from redag.entity.entity import generator_decorator, multiplicity_generator_decorator
+from redag.entity.redag_annotations_processor import RedagAnnotationsProcessor
+from redag.entity.redag_types import Reference
+from redag.entity.fact import fact
+from redag.redag import REDAG
 
 
 def test_simple_entity_creation():

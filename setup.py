@@ -1,12 +1,10 @@
-#!/usr/bin/env python
+from setuptools import setup
 
-from distutils.core import setup
-
-setup(name='Distutils',
+setup(name='redag',
       version='1.0',
-      description='Python Distribution Utilities',
-      author='Greg Ward',
-      author_email='gward@python.net',
-      url='https://www.python.org/sigs/distutils-sig/',
-      packages=['distutils', 'distutils.command'],
+      description='Python relation data generation framework',
+      author='Tomasz Cakala',
+      author_email='tc360950@gmail.com',
+      packages=['redag'],
+      install_requires=['networkx>=2.6.3']
      )

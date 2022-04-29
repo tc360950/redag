@@ -3,10 +3,10 @@ from typing import Any, Dict, List, Iterator, Generator
 
 import networkx
 
-from src.entity.entity import Entity, EntityValue
-from src.entity.redag_annotations_processor import RedagAnnotationsProcessor as RAP
-from src.relation_graph import RelationGraph
-from src.utils import Singleton
+from redag.entity.redag_annotations_processor import RedagAnnotationsProcessor as RAP
+from redag.entity.redag_types import Entity, EntityValue
+from redag.relation_graph import RelationGraph
+from redag.utils import Singleton
 
 
 class REDAG(metaclass=Singleton):
