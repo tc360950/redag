@@ -5,7 +5,7 @@ from typing import Dict
 from redag import REDAG, SampleFormatter, multiplicity_generator_decorator, generator_decorator, Reference, fact, dimension, Dimension
 
 
-@dimension(max_quantity=1)
+@dimension(max_quantity=10)
 class Item(Dimension):
     name: str
 
@@ -60,3 +60,48 @@ class Invoice:
 if __name__ == "__main__":
     sample = next(REDAG().generate())
     print(SampleFormatter.format(sample))
+
+    # The result should resemble the following
+    """
+    [
+        {
+            "entity": "Invoice",
+            "total_amount": "0.26976371928387805",
+            "invoice_date": "2022-06-24 11:35:49",
+            "invoice_due_date": "2022-06-28 11:35:49",
+            "REDAG_id": "425bb4ca-aefe-4022-97b0-326aa65df671",
+            "item_id": "23e24330-ca6e-4f33-9067-a9b81c65af11",
+            "sales_order_id": "14e241ef-4225-4006-9879-5a59645ed145"
+        },
+        {
+            "entity": "Invoice",
+            "total_amount": "0.4425365734990167",
+            "invoice_date": "2022-06-24 11:35:49",
+            "invoice_due_date": "2022-06-29 11:35:49",
+            "REDAG_id": "e1d5a321-f2d1-42aa-b906-a2b58e5cf3f4",
+            "item_id": "23e24330-ca6e-4f33-9067-a9b81c65af11",
+            "sales_order_id": "14e241ef-4225-4006-9879-5a59645ed145"
+        },
+        {
+            "entity": "WarehouseOrder",
+            "quantity": "9",
+            "order_date": "2022-06-02 11:35:49",
+            "REDAG_id": "0e35ef49-ee88-4bf7-a5d7-11f0a1d22208",
+            "item_id": "23e24330-ca6e-4f33-9067-a9b81c65af11",
+            "sales_order_id": "14e241ef-4225-4006-9879-5a59645ed145"
+        },
+        {
+            "entity": "SalesOrder",
+            "quantity": "3",
+            "unit_price": "0.23743343092763158",
+            "order_date": "2022-06-24 11:35:49",
+            "REDAG_id": "14e241ef-4225-4006-9879-5a59645ed145",
+            "item_id": "23e24330-ca6e-4f33-9067-a9b81c65af11"
+        },
+        {
+            "entity": "Item",
+            "name": "PMJKUSYTIS",
+            "REDAG_id": "23e24330-ca6e-4f33-9067-a9b81c65af11"
+        }
+    ]
+    """
