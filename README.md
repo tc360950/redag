@@ -11,11 +11,14 @@ Eventually ordered items are issued from the warehouse through *WarehouseOrder*.
 They are connected through directed acyclic relation graph:
 ```mermaid
   graph TD;
-      A-->B;
-      A-->C;
-      B-->D;
-      C-->D;
+      Item-->SalesOrder;
+      SalesOrder-->Invoice;
+      SalesOrder-->WarehouseOrder;
 ```
+An arrow indicates that there's a *OneToMany* relation between the source and the target. 
+
+*Item* is what we call a dimension.
 
 
+Remaining entities are *facts* 
 # Usage
