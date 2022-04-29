@@ -27,3 +27,48 @@ If you define the relation graph and recipe for generating entities, REDAG handl
 Refer to example /example/accounts_receivable.py to see described model in action.
 
 # Usage
+
+## Defining entities and relations between entities 
+Each entity is just an empty Python class with annotations defining its attributes. 
+If entity should be a Fact, decorate it with *redag.fact* decorator, otherwise (entity is a dimension)
+decorate it with *redag.dimension* and let the class derive from *redag.Dimension* class.
+
+A fact definition looks like this:
+```
+@redag.fact()
+class FactName
+    attr1_name: attr1_type 
+    .
+    .
+    .
+    attrN_name: attrN_type
+```
+A dimension definition looks like this: 
+```
+@redag.dimension(max_quantity=K)
+class DimensionName(Dimension)
+    attr1_name: attr1_type 
+    .
+    .
+    .
+    attrN_name: attrN_type
+```
+Where *max_quantity=K* tells REDAG that it should generate at most *K* instances of the dimension. 
+
+To define edges in the relation graph one must use attributes of special generic type *redag.Reference*.
+For example in this model:
+```
+@redag.fact()
+class Fact1Name:
+    ...
+
+@redag.fact()
+class Fact2Name:
+    fact1_id: redag.Reference[Fact1Name]
+
+```
+
+There's an edge going from entity *Fact1Name* to *Fact2Name* (i.e. to one *Fact1Name* corresponds multiple instances of *Fact2Name*).
+References to dimensions are defined in the same manner.
+
+## Generating entities 
