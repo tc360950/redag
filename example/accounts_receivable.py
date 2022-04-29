@@ -2,10 +2,11 @@ import datetime
 import random
 from typing import Dict
 
-from redag import REDAG, SampleFormatter, multiplicity_generator_decorator, generator_decorator, Reference, fact, dimension, Dimension
+from redag import REDAG, SampleFormatter, multiplicity_generator_decorator, generator_decorator, Reference, fact, \
+    dimension, Dimension
 
 
-@dimension(max_quantity=10)
+@dimension(max_quantity=10)  # REDAG will generate at most 10 items
 class Item(Dimension):
     name: str
 
@@ -15,7 +16,7 @@ class SalesOrder:
     quantity: int
     unit_price: float
     order_date: datetime.date
-    item_id: Reference[Item]
+    item_id: Reference[Item]  # SalesOrders have ManyToOne relationship with Items
 
 
 @fact()
@@ -33,11 +34,31 @@ class Invoice:
     sales_order_id: Reference[SalesOrder]
 
     @multiplicity_generator_decorator()
-    def sample_invoices_per_sales_order(cls, *args, **kwargs) -> int:
+    def sample_invoices_per_sales_order(cls, parents: Dict, **kwargs) -> int:
+        """
+        Methods decorated with 'multiplicity_generator_decorator'
+        are used to define functions which define how many entities of this type should be generated in one sample
+        (based on the values of parent entities which are passed in @parents).
+        In this case we say that to one sales_order there should correspond between 0 and 4 invoices.
+        And the exact number is random.
+        """
         return random.randint(0, 4)
 
     @generator_decorator()
     def sample_invoice(cls, parents: Dict, state: Dict) -> Dict:
+        """
+        Methods decorated with 'generator_decorator' are responsible for generation of entity
+        attributes during sampling.
+        @parents is a dict of values of generated parent entities. In this case we can expect that
+        parents[SalesOrder] contains instance of SalesOrder class for which we generate invoices.
+
+        @state is a dictionary with one key - multiplicity. It tells us how many invoices should we generate
+        (in this case multiplicity will be equal to result of call to @sample_invoices_per_sales_order because
+        it's marked as multiplicity_generator_decorator).
+
+        If multiplicity is greater than one, @state will be passed between subsequent calls to sample_invoice.
+        In this way we can pass some state between generation of different invoice corresponding to the same sales order.
+        """
         total_order_amount = parents[SalesOrder].quantity * parents[SalesOrder].unit_price
         amount_left = state.setdefault("amount_left", total_order_amount)
         invoice_number = state.setdefault("invoice_number", 0) + 1
@@ -59,6 +80,7 @@ class Invoice:
 
 if __name__ == "__main__":
     sample = next(REDAG().generate())
+    # SampleFormatter is a utility class which converts samples to human-readable JSON format
     print(SampleFormatter.format(sample))
 
     # The result should resemble the following

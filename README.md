@@ -17,8 +17,13 @@ They are connected through directed acyclic relation graph:
 ```
 An arrow indicates that there's a *OneToMany* relation between the source and the target. 
 
-*Item* is what we call a dimension.
+*Item* is what we call a dimension. Each dimension has a fixed maximal quantity and is always a source in the relation graph (i.e. has no parents).
 
 
-Remaining entities are *facts* 
+Remaining entities are *facts* - entities which are unbounded in numbers and can have edges from any number of dimensions and at most one edge from fact. 
+
+If you define the relation graph and recipe for generating entities, REDAG handles rest and samples entities from the model for you. 
+
+Refer to example /example/accounts_receivable.py to see described model in action.
+
 # Usage
