@@ -48,8 +48,10 @@ def extract_entity_attributes(cls) -> Dict[str, type]:
     """
         Scan __annotation__ of class @cls to retrieve attributes together with their types.
     """
-    attributes = dict(
-        [(ann, value) for ann, value in cls.__dict__["__annotations__"].items()])
+    if hasattr(cls, "__annotations__"):
+        attributes = dict([(ann, value) for ann, value in cls.__dict__["__annotations__"].items()])
+    else:
+        attributes = {}
 
     # Always add ....
     attributes[__REDAG_ID_ATTRIBUTE__] = ObjectID
