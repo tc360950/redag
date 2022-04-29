@@ -68,6 +68,8 @@ class Invoice:
         else:
             invoice_amount = random.random() * amount_left
 
+        # Invoices' amounts must some to amount on the sales order
+        # That's why we use state to pass amount which is left for next invoices
         state["amount_left"] = state["amount_left"] - invoice_amount
         state["invoice_number"] = invoice_number
         invoice_date = parents[SalesOrder].order_date
